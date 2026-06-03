@@ -1,0 +1,96 @@
+name: Linting
+# Best-effort style/format linting plus a hard assertion that the project is
+# licensed under GPLv3. Style jobs are continue-on-error so cosmetic issues
+# never block a merge; the license assertion is the one job that must pass.
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+  workflow_dispatch:
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # EditorConfig conformance (best-effort).
+  # ---------------------------------------------------------------------------
+  editorconfig:
+    name: EditorConfig
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Check out pipeline code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install editorconfig-checker
+        run: npm install -g editorconfig-checker
+
+      - name: Run editorconfig-checker
+        # Skip vendored / binary-ish paths that should not be linted.
+        run: |
+          editorconfig-checker \
+            -exclude 'LICENSE|\.git/|.*\.png$|.*\.svg$|.*\.gz$|.*\.tsv$' \
+            $(git ls-files)
+
+  # ---------------------------------------------------------------------------
+  # Prettier + markdownlint over YAML/JSON/Markdown (best-effort).
+  # ---------------------------------------------------------------------------
+  prettier:
+    name: Prettier & markdownlint
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Check out pipeline code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install prettier and markdownlint-cli
+        run: npm install -g prettier markdownlint-cli
+
+      - name: Run Prettier (check only)
+        run: prettier --check . || true
+
+      - name: Run markdownlint
+        run: markdownlint . || true
+
+  # ---------------------------------------------------------------------------
+  # LICENSE assertion (REQUIRED). The repository must ship GNU GPL v3.
+  # ---------------------------------------------------------------------------
+  license:
+    name: Assert LICENSE is GPLv3
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out pipeline code
+        uses: actions/checkout@v4
+
+      - name: Verify LICENSE exists and is GPL version 3
+        run: |
+          if [ ! -f LICENSE ]; then
+            echo "::error::LICENSE file is missing."
+            exit 1
+          fi
+          if ! grep -q "GNU GENERAL PUBLIC LICENSE" LICENSE; then
+            echo "::error::LICENSE is not the GNU General Public License."
+            exit 1
+          fi
+          if ! grep -qE "Version 3" LICENSE; then
+            echo "::error::LICENSE is not GPL Version 3."
+            exit 1
+          fi
+          echo "LICENSE confirmed: GNU General Public License, Version 3."

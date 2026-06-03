@@ -1,0 +1,155 @@
+name: CI
+# Continuous integration for the t2t-flow pipeline.
+# The "stub" job is the required gate: it runs the full DAG with -stub-run using
+# only host coreutils (no containers), so it must complete in minutes.
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+  # Allow manual runs (and the heavier docker job) on demand.
+  workflow_dispatch:
+
+# Cancel superseded runs on the same ref to keep CI fast.
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: true
+
+env:
+  NXF_ANSI_LOG: false
+  NXF_SINGULARITY_CACHEDIR: ${{ github.workspace }}/.singularity
+  NFTEST_VER: "0.9.2"
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # (a) STUB JOB  --  the required gate. No containers; host coreutils stubs.
+  # ---------------------------------------------------------------------------
+  stub:
+    name: Stub run (NXF ${{ matrix.NXF_VER }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        NXF_VER:
+          # 24.04 is the floor: the pipeline uses process.resourceLimits.
+          - "24.10.5"
+          - "latest-stable"
+    steps:
+      - name: Check out pipeline code
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install Nextflow
+        uses: nf-core/setup-nextflow@v2
+        with:
+          version: "${{ matrix.NXF_VER }}"
+
+      - name: Run pipeline with the test profile in stub mode
+        run: |
+          nextflow run . \
+            -profile test \
+            -stub-run \
+            --outdir results
+
+      - name: Upload pipeline_info artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-info-stub-${{ matrix.NXF_VER }}
+          path: results/pipeline_info
+          if-no-files-found: ignore
+          retention-days: 7
+
+  # ---------------------------------------------------------------------------
+  # (b) TEST-DOCKER JOB  --  real container run. Kept off the critical path:
+  #     only on manual dispatch or when a PR carries the "test-docker" label,
+  #     and marked continue-on-error so a slow/flaky pull never blocks merges.
+  # ---------------------------------------------------------------------------
+  test-docker:
+    name: Test run with Docker
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      contains(github.event.pull_request.labels.*.name, 'test-docker')
+    steps:
+      - name: Check out pipeline code
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install Nextflow
+        uses: nf-core/setup-nextflow@v2
+        with:
+          version: "latest-stable"
+
+      - name: Ensure bundled bin/ scripts are executable
+        run: chmod +x bin/*.py || true
+
+      - name: Run pipeline with the test,docker profile (pulls containers)
+        run: |
+          nextflow run . \
+            -profile test,docker \
+            --outdir results
+
+      - name: Upload pipeline_info artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-info-docker
+          path: results/pipeline_info
+          if-no-files-found: ignore
+          retention-days: 7
+
+  # ---------------------------------------------------------------------------
+  # (c) LINT JOB  --  cheap static checks: compile the Python helpers and run a
+  #     Nextflow config sanity check (no execution, no containers).
+  # ---------------------------------------------------------------------------
+  lint:
+    name: Lint (python + nextflow config)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out pipeline code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Byte-compile bundled Python helpers in bin/
+        run: |
+          if compgen -G "bin/*.py" > /dev/null; then
+            python -m py_compile bin/*.py
+            echo "All bin/*.py files compiled successfully."
+          else
+            echo "No bin/*.py files found; skipping py_compile."
+          fi
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install Nextflow
+        uses: nf-core/setup-nextflow@v2
+        with:
+          version: "latest-stable"
+
+      - name: Nextflow config sanity check
+        run: |
+          nextflow config . -profile test
