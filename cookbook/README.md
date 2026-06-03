@@ -73,7 +73,7 @@ confirm your environment and samplesheet parse before committing real compute.
 cd cookbook/01_heterozygous_eukaryote
 
 # 2. (optional) dry-run the DAG with no data / no containers
-nextflow run ../.. -profile test,docker -stub-run
+nextflow run ../.. -profile test -stub-run
 
 # 3. fetch the data (each recipe's commands.sh does this for you)
 bash commands.sh download

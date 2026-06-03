@@ -2,7 +2,7 @@
 
 **Telomere-to-telomere de novo genome assembly of non-model organisms from long reads.**
 
-[![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A523.10.0-23aa62?logo=nextflow&logoColor=white)](https://www.nextflow.io/)
+[![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A524.04.0-23aa62?logo=nextflow&logoColor=white)](https://www.nextflow.io/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg?logo=gnu)](https://www.gnu.org/licenses/gpl-3.0)
 [![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?logo=docker&logoColor=white)](https://www.docker.com/)
 [![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c?logo=apptainer&logoColor=white)](https://apptainer.org/)
@@ -82,26 +82,30 @@ flowchart TD
 
 ### 3.1 Install prerequisites
 
-1. **Nextflow ≥ 23.10.0** (Java 17+):
+1. **Nextflow ≥ 24.04.0** (Java 17+):
    ```bash
    curl -s https://get.nextflow.io | bash
    ./nextflow -version
    ```
 2. **A container engine** — pick one: [Docker](https://docs.docker.com/get-docker/), [Singularity/Apptainer](https://apptainer.org/), or [Conda](https://docs.conda.io/). Every process is containerized; you should not install bioinformatics tools on the host.
 
-### 3.2 Run the built-in test (no real data needed)
+### 3.2 Quick test
 
-The `test` profile uses a tiny synthetic samplesheet and `-stub-run` so the whole DAG executes in seconds with no containers pulled:
-
-```bash
-nextflow run . -profile test,docker --outdir results
-```
-
-For a true stub validation (what CI runs):
+**Validate the whole DAG in seconds — no containers, exactly what CI runs.** Run from the repo root (the `test` profile uses the tiny bundled fixtures in `assets/test_data/`):
 
 ```bash
 nextflow run . -profile test -stub-run --outdir results
 ```
+
+Every process runs as a no-op stub, so this confirms the pipeline is wired correctly end to end without pulling or installing anything.
+
+**Run the real tools on a tiny public dataset** (pulls containers, takes a few minutes):
+
+```bash
+nextflow run . -profile test_full,docker --outdir results
+```
+
+The `test_full` profile downloads a small public PacBio HiFi read set and executes the live tools (hifiasm → purge_dups → QC → release). It was validated end to end (exit 0) on a 4-core/16 GB Linux runner.
 
 ### 3.3 Run on your data
 
@@ -130,16 +134,17 @@ The samplesheet is a CSV with a header line. One row per sample (combine all rea
 | `ont`        | Optional* | `.fastq.gz` / `.fq.gz` (Nanopore reads) | Ultra-long reads; used by `verkko`, as `--ul` in `hifiasm`, or as `flye` input. |
 | `hic_1`      | Optional | `.fastq.gz` (Hi-C R1) | Hi-C forward reads; required for scaffolding and for `hifiasm --h1`. |
 | `hic_2`      | Optional | `.fastq.gz` (Hi-C R2) | Hi-C reverse reads; must be paired with `hic_1`. |
-| `hic_enzyme` | Optional | e.g. `GATC`, `DNASE`, `Arima` | Restriction-enzyme motif/preset; used by SALSA2 (`--scaffolder salsa`). |
 
-> **\*** At least one of `hifi` or `ont` must be present per sample. If only `ont` is supplied, choose `--assembler flye` or `--assembler verkko` (with HiFi) accordingly. Empty optional cells are left blank (e.g. `sampleA,reads.hifi.fastq.gz,,,,`).
+> **\*** At least one of `hifi` or `ont` must be present per sample. If only `ont` is supplied, choose `--assembler flye` or `--assembler verkko`. Empty optional cells are left blank (e.g. `sampleA,reads.hifi.fastq.gz,,,`).
+>
+> The Hi-C restriction enzyme for the SALSA2 scaffolder is set globally on the command line with `--hic_enzyme` (e.g. `--hic_enzyme GATC`), not per sample.
 
 Example:
 
 ```csv
 sample,hifi,ont,hic_1,hic_2
-beetleX,/data/beetleX.hifi.fastq.gz,,/data/beetleX.hic.R1.fastq.gz,/data/beetleX.hic.R2.fastq.gz,GATC
-frogY,/data/frogY.hifi.fastq.gz,/data/frogY.ont.fastq.gz,,,
+beetleX,/data/beetleX.hifi.fastq.gz,,/data/beetleX.hic.R1.fastq.gz,/data/beetleX.hic.R2.fastq.gz
+frogY,/data/frogY.hifi.fastq.gz,/data/frogY.ont.fastq.gz,,
 ```
 
 ## 5. Parameters
@@ -221,7 +226,7 @@ Full reference with types and defaults lives in [`docs/parameters.md`](docs/para
 
 ## 6. Profiles
 
-Combine profiles with commas, e.g. `-profile test,docker` or `-profile slurm,singularity`.
+Combine profiles with commas, e.g. `-profile test_full,docker` or `-profile slurm,singularity`.
 
 | Profile | Purpose |
 |---------|---------|

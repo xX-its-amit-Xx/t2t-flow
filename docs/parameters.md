@@ -65,7 +65,7 @@ Auto-doc-style reference for every `t2t-flow` parameter. Parameters are grouped 
 |-----------|------|---------|---------|-------------|
 | `scaffolder` | `string` | `'yahs'` | `yahs`, `salsa` | Hi-C scaffolder. `yahs` is the default; `salsa` uses `hic_enzyme`. |
 | `skip_scaffolding` | `boolean` | `false` | | Stop at contigs (no chromosome-scale scaffolds / AGP). |
-| `hic_enzyme` | `string` | `null` | e.g. `GATC`, `Arima`, `DNASE` | Restriction enzyme/preset for SALSA2. Also a samplesheet column. |
+| `hic_enzyme` | `string` | `null` | e.g. `GATC`, `Arima`, `DNASE` | Restriction enzyme/preset for SALSA2. |
 | `min_contig_length` | `integer` | `1000` | | Minimum contig length carried into scaffolding/reporting. |
 
 ---
@@ -121,7 +121,7 @@ Auto-doc-style reference for every `t2t-flow` parameter. Parameters are grouped 
 - **FCS-GX needs all three:** `--run_fcs_gx`, `--fcs_gx_db`, and `--fcs_gx_tax_id` must all be set.
 - **Assembler vs reads:** `verkko` expects HiFi **and** ONT; `flye` takes one read type — set `--flye_mode` to match; `hifiasm` centers on HiFi and optionally consumes ONT (`--ul`) and Hi-C (`--h1/--h2`).
 - **Scaffolding needs Hi-C:** with no `hic_1`/`hic_2`, scaffolding has nothing to act on; set `--skip_scaffolding` to stop cleanly at contigs.
-- **`salsa` uses the enzyme:** set `--hic_enzyme` (or the samplesheet column) when `--scaffolder salsa`.
+- **`salsa` uses the enzyme:** set `--hic_enzyme` when `--scaffolder salsa`.
 
 ---
 

@@ -19,7 +19,7 @@ This guide covers everything you need to run `t2t-flow` on real data: building t
 
 | Requirement | Minimum | Notes |
 |-------------|---------|-------|
-| Nextflow | ≥ 23.10.0 | DSL2 + nf-schema 2.1.1 plugin. Requires Java 17+. |
+| Nextflow | ≥ 24.04.0 | DSL2 + nf-schema 2.1.1 plugin. Requires Java 17+. |
 | Container engine | Docker **or** Singularity/Apptainer **or** Conda | Every process is containerized; do not install tools on the host. |
 | RAM | 256 GB+ for vertebrate genomes | `hifiasm`/`verkko` are the peak-RAM stages. |
 | Disk | 5–20× the input read volume | Intermediate alignments and graphs are large. |
@@ -57,7 +57,7 @@ One row per sample; put all read types for a sample on the same row.
 - Each sample needs **at least one** of `hifi` or `ont`.
 - The pipeline picks the **primary long-read set** as `hifi` if present, otherwise `ont`. This drives profiling, purge_dups, and (optionally) polishing.
 - Hi-C is only used if **both** `hic_1` and `hic_2` are present.
-- Leave optional cells empty (trailing commas), e.g. `sampleA,a.hifi.fq.gz,,,,`.
+- Leave optional cells empty (trailing commas), e.g. `sampleA,a.hifi.fq.gz,,,`.
 - Paths can be absolute, relative to the launch dir, or `s3://`/`gs://` URLs.
 
 **Examples**
@@ -65,19 +65,19 @@ One row per sample; put all read types for a sample on the same row.
 HiFi + Hi-C (recommended for chromosome-scale, `hifiasm`+`yahs`):
 ```csv
 sample,hifi,ont,hic_1,hic_2
-beetleX,/data/beetleX.hifi.fastq.gz,,/data/beetleX.hic.R1.fastq.gz,/data/beetleX.hic.R2.fastq.gz,GATC
+beetleX,/data/beetleX.hifi.fastq.gz,,/data/beetleX.hic.R1.fastq.gz,/data/beetleX.hic.R2.fastq.gz
 ```
 
 HiFi + ONT (for `verkko`, or `hifiasm --ul`):
 ```csv
 sample,hifi,ont,hic_1,hic_2
-frogY,/data/frogY.hifi.fastq.gz,/data/frogY.ont.fastq.gz,,,
+frogY,/data/frogY.hifi.fastq.gz,/data/frogY.ont.fastq.gz,,
 ```
 
 ONT-only (use `--assembler flye --flye_mode --nano-hq`):
 ```csv
 sample,hifi,ont,hic_1,hic_2
-snailZ,,/data/snailZ.ont.fastq.gz,,,
+snailZ,,/data/snailZ.ont.fastq.gz,,
 ```
 
 ---
@@ -87,7 +87,7 @@ snailZ,,/data/snailZ.ont.fastq.gz,,,
 ### Smoke test
 
 ```bash
-nextflow run . -profile test,docker --outdir results
+nextflow run . -profile test -stub-run --outdir results
 nextflow run . -profile test -stub-run --outdir results   # what CI runs
 ```
 

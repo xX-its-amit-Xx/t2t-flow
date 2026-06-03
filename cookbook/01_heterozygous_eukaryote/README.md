@@ -37,7 +37,7 @@ empty; the pipeline filters those channels away.
 
 ```csv
 sample,hifi,ont,hic_1,hic_2
-Csordidus,data/SRR18555109.fastq.gz,,,,
+Csordidus,data/SRR18555109.fastq.gz,,,
 ```
 
 This maps to a meta map of `[ id: 'Csordidus' ]` and a single `ch_hifi` tuple
@@ -52,7 +52,7 @@ See `commands.sh` for the runnable script. The essentials:
 
 ```bash
 # 0. validate the DAG with no data and no containers (this is what CI runs)
-nextflow run ../.. -profile test,docker -stub-run
+nextflow run ../.. -profile test -stub-run
 
 # 1. fetch the verified HiFi reads (~25 GB gzipped) into ./data
 bash commands.sh download

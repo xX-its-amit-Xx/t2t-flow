@@ -58,7 +58,7 @@ is a valid combined `.gz`.)
 
 ```csv
 sample,hifi,ont,hic_1,hic_2
-bTaeGut2,data/bTaeGut2.hifi.fastq.gz,,data/bTaeGut2.hic_R1.fastq.gz,data/bTaeGut2.hic_R2.fastq.gz,Arima
+bTaeGut2,data/bTaeGut2.hifi.fastq.gz,,data/bTaeGut2.hic_R1.fastq.gz,data/bTaeGut2.hic_R2.fastq.gz
 ```
 
 `INPUT_CHECK` emits a `ch_hifi` tuple and — because both `hic_1` and `hic_2` are
@@ -73,7 +73,7 @@ See `commands.sh`. The real run:
 
 ```bash
 # 0. validate the DAG (no data, no containers)
-nextflow run ../.. -profile test,docker -stub-run
+nextflow run ../.. -profile test -stub-run
 
 # 1. fetch + concatenate the verified GenomeArk HiFi and Arima Hi-C
 bash commands.sh download          # or: bash commands.sh download-aws  (needs awscli)
