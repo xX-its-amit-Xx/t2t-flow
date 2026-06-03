@@ -9,7 +9,9 @@ process MINIMAP2_ALIGN {
 
     input:
     tuple val(meta), path(reads)
-    tuple val(meta2), path(reference)
+    // Stage the reference in its own subdir so a self-alignment (purge_dups, where
+    // query == target) does not trigger an input file-name collision.
+    tuple val(meta2), path(reference, stageAs: 'reference/*')
     val bam_format
     val preset
 
