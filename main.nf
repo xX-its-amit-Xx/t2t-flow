@@ -264,11 +264,19 @@ workflow {
     // Concise params summary to the log (and to pipeline_info via summary map).
     log.info( paramsSummaryLog(workflow) )
 
-    // Persist a params summary for provenance.
-    def summary = paramsSummaryMap(workflow)
+    // Persist a params summary for provenance. Flatten the grouped summary and
+    // stringify every value first: paramsSummaryMap returns java.nio.file.Path
+    // objects for path params, and a Path is self-iterable, which makes Groovy's
+    // JsonOutput recurse infinitely (StackOverflowError). Strings serialise safely.
+    def summaryFlat = [:]
+    paramsSummaryMap(workflow).each { group, items ->
+        if (items instanceof Map) {
+            items.each { k, v -> summaryFlat[k] = (v == null ? null : v.toString()) }
+        }
+    }
     def summaryFile = file("${params.outdir}/pipeline_info/params_summary.json")
     summaryFile.parent.mkdirs()
-    summaryFile.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(summary))
+    summaryFile.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(summaryFlat))
 
     T2TFLOW ()
 }
