@@ -11,10 +11,7 @@ process MERQURY {
     tuple val(meta), path(meryl_db), path(assembly)
 
     output:
-    // merqury writes an overall "${prefix}.qv" plus a per-assembly
-    // "${prefix}.<asm>.qv"; emit only the overall summary QV so a single value
-    // flows downstream (a "*.qv" glob would emit both as a list).
-    tuple val(meta), path("${prefix}.qv")          , emit: qv
+    tuple val(meta), path("*.qv")                  , emit: qv
     tuple val(meta), path("*.completeness.stats")  , emit: completeness
     tuple val(meta), path("*.spectra-cn.*.png")    , emit: spectra_cn_png , optional: true
     tuple val(meta), path("*.spectra-asm.*.png")   , emit: spectra_asm_png, optional: true
@@ -32,6 +29,10 @@ process MERQURY {
         $meryl_db \\
         $assembly \\
         $prefix
+
+    # merqury writes an overall "${prefix}.qv" plus a per-assembly "${prefix}.<asm>.qv".
+    # Keep only the overall QV so a single value flows downstream (assembly_stats).
+    find . -maxdepth 1 -name "*.qv" ! -name "${prefix}.qv" -delete
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
