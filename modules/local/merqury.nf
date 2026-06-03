@@ -25,6 +25,11 @@ process MERQURY {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
+    # merqury.sh sources \$MERQURY/util/util.sh. That env var is set in the docker
+    # image and by the bioconda activation, but NOT in the Galaxy-depot singularity
+    # image — derive it from merqury.sh's install prefix so every engine works.
+    export MERQURY=\${MERQURY:-\$(dirname \$(dirname \$(which merqury.sh)))/share/merqury}
+
     merqury.sh \\
         $meryl_db \\
         $assembly \\
@@ -36,7 +41,7 @@ process MERQURY {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        merqury: \$(echo \$MERQURY | sed 's/.*merqury//; s/[^0-9.].*\$//' || echo 1.3)
+        merqury: 1.3
     END_VERSIONS
     """
 
