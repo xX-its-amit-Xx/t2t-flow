@@ -71,7 +71,7 @@
                     "minimum": 1
                 },
                 "genome_size": {
-                    "type": "string",
+                    "type": ["string", "integer"],
                     "default": null,
                     "description": "Estimated genome size (e.g. '1g', '500m', or bp as integer). Optional; some tools estimate it automatically.",
                     "fa_icon": "fas fa-weight"
