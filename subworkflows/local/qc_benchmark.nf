@@ -46,19 +46,26 @@ workflow QC_BENCHMARK {
     ch_multiqc_files = ch_multiqc_files.mix(QUAST.out.tsv.map { meta, f -> f })
 
     //
-    // BUSCO gene completeness. busco_db may be null (auto-download / lineage by
-    // name); pass an empty list when unset so the optional path input is happy.
+    // BUSCO gene completeness (skippable via --skip_busco). busco_db may be null
+    // (auto-download / lineage by name); pass an empty list when unset so the
+    // optional path input is happy.
     //
-    def busco_db = params.busco_db ? file(params.busco_db, checkIfExists: true) : []
+    ch_busco_summary = Channel.empty()
+    ch_busco_json    = Channel.empty()
+    if (!params.skip_busco) {
+        def busco_db = params.busco_db ? file(params.busco_db, checkIfExists: true) : []
 
-    BUSCO (
-        ch_assembly,
-        params.busco_lineage,
-        params.busco_mode,
-        busco_db
-    )
-    ch_versions      = ch_versions.mix(BUSCO.out.versions)
-    ch_multiqc_files = ch_multiqc_files.mix(BUSCO.out.short_summary_txt.map { meta, f -> f })
+        BUSCO (
+            ch_assembly,
+            params.busco_lineage,
+            params.busco_mode,
+            busco_db
+        )
+        ch_versions      = ch_versions.mix(BUSCO.out.versions)
+        ch_multiqc_files = ch_multiqc_files.mix(BUSCO.out.short_summary_txt.map { meta, f -> f })
+        ch_busco_summary = BUSCO.out.short_summary_txt
+        ch_busco_json    = BUSCO.out.short_summary_json
+    }
 
     //
     // MERQURY: join the meryl db with the assembly by meta.
@@ -100,8 +107,8 @@ workflow QC_BENCHMARK {
 
     emit:
     gfastats             = GFASTATS.out.stats              // channel: [ val(meta), path(*.gfastats.txt) ]
-    busco_summary        = BUSCO.out.short_summary_txt     // channel: [ val(meta), path(*short_summary*.txt) ]
-    busco_json           = BUSCO.out.short_summary_json    // channel: [ val(meta), path(*short_summary*.json) ]
+    busco_summary        = ch_busco_summary                // channel: [ val(meta), path(*short_summary*.txt) ]
+    busco_json           = ch_busco_json                   // channel: [ val(meta), path(*short_summary*.json) ]
     quast                = QUAST.out.tsv                   // channel: [ val(meta), path(*report.tsv) ]
     merqury_qv           = MERQURY.out.qv                  // channel: [ val(meta), path(*.qv) ]
     tidk_search          = TIDK_SEARCH.out.search_tsv      // channel: [ val(meta), path(*.tidk.search.tsv) ]
