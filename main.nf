@@ -81,6 +81,8 @@ def collateVersions(ch_versions) {
 
 workflow T2TFLOW {
 
+    main:
+
     // Accumulators carried through the whole pipeline.
     ch_versions      = Channel.empty()
     ch_multiqc_files = Channel.empty()
