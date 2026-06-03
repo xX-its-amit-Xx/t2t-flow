@@ -1,0 +1,2 @@
+sample,hifi,ont,hic_1,hic_2
+test_sample,assets/test_data/test_hifi.fastq.gz,,assets/test_data/test_hic_R1.fastq.gz,assets/test_data/test_hic_R2.fastq.gz

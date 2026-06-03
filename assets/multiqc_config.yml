@@ -1,0 +1,96 @@
+report_title: "t2t-flow — Telomere-to-Telomere Genome Assembly Report"
+report_comment: >
+  This report summarizes the results of the <a href="https://github.com/t2t-flow/t2t-flow"
+  target="_blank">t2t-flow</a> pipeline: telomere-to-telomere de novo genome assembly of
+  non-model organisms from long reads. Per-tool sections appear below; pipeline-specific
+  metrics (contiguity, BUSCO completeness, Merqury QV, telomere status) are summarized in
+  the custom-content sections.
+
+# Custom logo placeholder. Replace assets/t2t-flow_logo.png with a real logo to enable.
+custom_logo: "t2t-flow_logo.png"
+custom_logo_url: "https://github.com/t2t-flow/t2t-flow"
+custom_logo_title: "t2t-flow"
+
+report_header_info:
+  - Pipeline: "t2t-flow"
+  - Description: "Telomere-to-telomere de novo assembly of non-model organisms"
+  - License: "GPLv3"
+
+# Order in which modules are rendered. Read QC first, then profiling, contamination,
+# assembly evaluation, scaffolding QC, and finally the custom t2t-flow summaries.
+module_order:
+  - nanoplot:
+      name: "NanoPlot (long-read QC)"
+  - seqkit:
+      name: "SeqKit (read statistics)"
+  - kraken:
+      name: "Kraken2 (contamination screen)"
+  - quast:
+      name: "QUAST (assembly contiguity)"
+  - busco:
+      name: "BUSCO (gene-set completeness)"
+
+# Show these sections at the top of the report.
+top_modules:
+  - "nanoplot"
+  - "quast"
+  - "busco"
+
+# Clean sample names by stripping common t2t-flow suffixes.
+extra_fn_clean_exts:
+  - ".seqkit-stats"
+  - ".kraken2.report"
+  - "_NanoStats"
+  - ".assembly"
+  - ".scaffolds_final"
+  - ".purged"
+  - "short_summary."
+
+# Custom-content: pull in the per-assembly stats JSON produced by assembly_stats.py.
+# These files are emitted by the RELEASE subworkflow and matched by filename pattern.
+custom_data:
+  t2tflow_assembly_stats:
+    section_name: "t2t-flow assembly summary"
+    description: >
+      Aggregated contiguity, completeness, consensus quality (QV) and telomere
+      metrics per assembly, produced by t2t-flow's assembly_stats.py.
+    plot_type: "table"
+    pconfig:
+      id: "t2tflow_assembly_stats_table"
+      title: "t2t-flow assembly summary"
+  t2tflow_telomeres:
+    section_name: "t2t-flow telomere / centromere candidates"
+    description: >
+      Per-sequence telomere status (5' / 3' ends) and interstitial-repeat-based
+      centromere candidates from t2t-flow's telomere_table.py.
+    plot_type: "table"
+    pconfig:
+      id: "t2tflow_telomere_table"
+      title: "Telomere and centromere candidates"
+
+sp:
+  t2tflow_assembly_stats:
+    fn: "*.assembly_stats.json"
+  t2tflow_telomeres:
+    fn: "*.telomere_centromere.tsv"
+
+# Number formatting.
+decimalPoint_format: "."
+thousandsSep_format: ","
+
+# Keep the report deterministic and tidy.
+export_plots: true
+plots_force_interactive: false
+disable_version_detection: false
+
+# Section comment explaining how to read the t2t-flow specific outputs.
+section_comments:
+  t2tflow_assembly_stats: >
+    A telomere-to-telomere (T2T) assembly target shows high contiguity (few
+    scaffolds at or near chromosome number), BUSCO Complete approaching 100%,
+    a Merqury QV typically &gt; 40, and telomeres detected at both ends of most
+    chromosome-scale sequences.
+  t2tflow_telomeres: >
+    Sequences flagged as telomeric at both 5' and 3' ends are candidate
+    complete chromosomes. The centromere_candidate column is a heuristic based
+    on interstitial tandem-repeat density and should be validated independently.

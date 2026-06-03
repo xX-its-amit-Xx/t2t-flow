@@ -1,0 +1,60 @@
+# Nextflow
+.nextflow
+.nextflow.*
+.nextflow.log*
+work/
+results/
+out/
+output/
+*.log
+report*.html
+timeline*.html
+dag*.html
+trace*.txt
+.nextflow.pid
+
+# nf-test
+.nf-test/
+.nf-test.log
+nf-test.config.local
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyc
+*.pyo
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+env/
+
+# Singularity / Apptainer image cache
+*.sif
+*.img
+singularity/
+.apptainer/
+
+# Conda / mamba envs
+.conda/
+conda/
+
+# Editors / IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.windsurf/
+.code-workspace
+
+# OS cruft
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+desktop.ini

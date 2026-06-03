@@ -1,0 +1,88 @@
+{
+  "assemblies": [
+    {
+      "name": "bTaeGut2",
+      "displayName": "Zebra finch (bTaeGut2, t2t-flow)",
+      "sequence": {
+        "type": "ReferenceSequenceTrack",
+        "trackId": "bTaeGut2-ReferenceSequenceTrack",
+        "adapter": {
+          "type": "IndexedFastaAdapter",
+          "fastaLocation": {
+            "uri": "bTaeGut2_scaffolds_final.fa",
+            "locationType": "UriLocation"
+          },
+          "faiLocation": {
+            "uri": "bTaeGut2_scaffolds_final.fa.fai",
+            "locationType": "UriLocation"
+          }
+        }
+      }
+    }
+  ],
+  "tracks": [
+    {
+      "type": "QuantitativeTrack",
+      "trackId": "tidk_telomere",
+      "name": "Telomere repeat density (tidk AACCCT)",
+      "category": ["t2t-flow QC"],
+      "assemblyNames": ["bTaeGut2"],
+      "adapter": {
+        "type": "BigWigAdapter",
+        "bigWigLocation": {
+          "uri": "bTaeGut2.tidk.bw",
+          "locationType": "UriLocation"
+        }
+      }
+    },
+    {
+      "type": "FeatureTrack",
+      "trackId": "genes",
+      "name": "Gene models (genomeannotator)",
+      "category": ["Annotation"],
+      "assemblyNames": ["bTaeGut2"],
+      "adapter": {
+        "type": "Gff3TabixAdapter",
+        "gffGzLocation": {
+          "uri": "bTaeGut2.genes.sorted.gff3.gz",
+          "locationType": "UriLocation"
+        },
+        "index": {
+          "location": {
+            "uri": "bTaeGut2.genes.sorted.gff3.gz.tbi",
+            "locationType": "UriLocation"
+          },
+          "indexType": "TBI"
+        }
+      }
+    },
+    {
+      "type": "HicTrack",
+      "trackId": "hic_contacts",
+      "name": "Hi-C contact map (Arima)",
+      "category": ["Scaffolding evidence"],
+      "assemblyNames": ["bTaeGut2"],
+      "adapter": {
+        "type": "HicAdapter",
+        "hicLocation": {
+          "uri": "bTaeGut2.hic",
+          "locationType": "UriLocation"
+        }
+      }
+    }
+  ],
+  "defaultSession": {
+    "name": "t2t-flow bTaeGut2 overview",
+    "views": [
+      {
+        "id": "linearGenomeView",
+        "type": "LinearGenomeView",
+        "tracks": [
+          { "type": "ReferenceSequenceTrack", "configuration": "bTaeGut2-ReferenceSequenceTrack" },
+          { "type": "QuantitativeTrack", "configuration": "tidk_telomere" },
+          { "type": "FeatureTrack", "configuration": "genes" }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,43 @@
+# nf-core/genomeannotator params file - annotate t2t-flow scaffolds
+# Run with:  nextflow run nf-core/genomeannotator -r 1.0 -profile docker -params-file params.yaml
+#
+# Parameter names confirmed against https://nf-co.re/genomeannotator/parameters
+# Edit the evidence paths for your project. Lines you do not have evidence for can be
+# deleted (protein evidence alone is enough to produce gene models).
+
+# --- the assembly to annotate (THE t2t-flow product) ----------------------
+# Use the exact scaffolds FASTA from recipe 02:
+#   results/scaffolding/yahs/bTaeGut2_scaffolds_final.fa
+assembly: "/path/to/t2t-flow/cookbook/02_hic_scaffolding/results/scaffolding/yahs/bTaeGut2_scaffolds_final.fa"
+
+outdir: "./genomeannotator_results"
+
+# --- homology evidence ----------------------------------------------------
+# Broad related-organism proteins (e.g. chicken + zebra finch UniProt/RefSeq).
+proteins: "/path/to/evidence/aves_reference_proteins.fasta"
+
+# Optional: high-confidence, organism-specific proteins used as trusted seeds.
+# proteins_targeted: "/path/to/evidence/taeniopygia_curated_proteins.fasta"
+
+# Optional: assembled transcripts / ESTs in FASTA.
+# transcripts: "/path/to/evidence/taeniopygia_transcripts.fasta"
+
+# Optional: RNA-seq evidence as a 4-column samplesheet
+# (sample,fastq_1,fastq_2,strandedness). Delete if you have no RNA-seq.
+rnaseq_samples: "./samplesheet_rnaseq.csv"
+
+# --- repeat masking -------------------------------------------------------
+# t2t-flow does NOT hard-mask, so mask here.
+# Preferred: a curated repeat library (e.g. RepeatModeler on these scaffolds):
+# rm_lib: "/path/to/evidence/bTaeGut2_repeatmodeler.fasta"
+# Fallback: built-in DFam species set.
+rm_species: "aves"
+
+# --- evaluation -----------------------------------------------------------
+# Match the lineage you used in t2t-flow QC so numbers are comparable.
+busco_lineage: "aves_odb10"
+
+# --- resources (optional; tune to your node) ------------------------------
+max_cpus: 16
+max_memory: "128.GB"
+max_time: "240.h"

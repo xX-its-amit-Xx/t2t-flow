@@ -1,0 +1,7 @@
+repository_type: pipeline
+# Generated and maintained against nf-core tooling conventions.
+# nf_core_version: "3.1.1"
+nf_core_version: "3.1.1"
+lint:
+  files_exist: false
+  files_unchanged: false

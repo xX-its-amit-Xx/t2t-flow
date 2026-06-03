@@ -1,0 +1,46 @@
+process CHROMAP_INDEX {
+    tag "$meta.id"
+    label 'process_medium'
+
+    conda "bioconda::chromap=0.2.6"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/chromap:0.2.6--hdcf5f25_0' :
+        'biocontainers/chromap:0.2.6--hdcf5f25_0' }"
+
+    input:
+    tuple val(meta), path(fasta)
+
+    output:
+    tuple val(meta), path("*.index"), emit: index
+    path "versions.yml"             , emit: versions
+
+    when:
+    task.ext.when == null || task.ext.when
+
+    script:
+    def args = task.ext.args ?: ''
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    """
+    chromap \\
+        -i \\
+        $args \\
+        -r $fasta \\
+        -o ${prefix}.index
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        chromap: \$(echo \$(chromap --version 2>&1))
+    END_VERSIONS
+    """
+
+    stub:
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    """
+    touch ${prefix}.index
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        chromap: 0.2.6
+    END_VERSIONS
+    """
+}

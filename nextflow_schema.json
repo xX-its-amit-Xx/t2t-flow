@@ -1,0 +1,385 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "https://raw.githubusercontent.com/t2t-flow/t2t-flow/master/nextflow_schema.json",
+    "title": "t2t-flow pipeline parameters",
+    "description": "Telomere-to-telomere de novo genome assembly of non-model organisms from long reads",
+    "type": "object",
+    "definitions": {
+        "input_output_options": {
+            "title": "Input/output options",
+            "type": "object",
+            "fa_icon": "fas fa-terminal",
+            "description": "Define where the pipeline should find input data and save output data.",
+            "required": ["input", "outdir"],
+            "properties": {
+                "input": {
+                    "type": "string",
+                    "format": "file-path",
+                    "exists": true,
+                    "mimetype": "text/csv",
+                    "pattern": "^\\S+\\.csv$",
+                    "schema": "assets/samplesheet_schema.json",
+                    "description": "Path to comma-separated file containing information about the samples in the experiment.",
+                    "help_text": "You will need to create a design file with information about the samples. Columns: sample,hifi,ont,hic_1,hic_2.",
+                    "fa_icon": "fas fa-file-csv"
+                },
+                "outdir": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "The output directory where the results will be saved. Absolute path required for cloud infrastructure.",
+                    "fa_icon": "fas fa-folder-open"
+                },
+                "email": {
+                    "type": "string",
+                    "description": "Email address for completion summary.",
+                    "fa_icon": "fas fa-envelope",
+                    "pattern": "^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$"
+                },
+                "multiqc_title": {
+                    "type": "string",
+                    "description": "MultiQC report title. Printed as page header, used for filename if not otherwise specified.",
+                    "fa_icon": "fas fa-file-signature"
+                },
+                "multiqc_config": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Custom config file to supply to MultiQC.",
+                    "fa_icon": "fas fa-cog",
+                    "hidden": true
+                }
+            }
+        },
+        "reference_profiling_options": {
+            "title": "Reference and profiling options",
+            "type": "object",
+            "fa_icon": "fas fa-dna",
+            "description": "K-mer profiling and genome-size estimation options.",
+            "properties": {
+                "kmer_size": {
+                    "type": "integer",
+                    "default": 21,
+                    "description": "K-mer size used by meryl, GenomeScope2 and Merqury.",
+                    "fa_icon": "fas fa-ruler-horizontal",
+                    "minimum": 11,
+                    "maximum": 51
+                },
+                "ploidy": {
+                    "type": "integer",
+                    "default": 2,
+                    "description": "Expected ploidy of the organism.",
+                    "fa_icon": "fas fa-clone",
+                    "minimum": 1
+                },
+                "genome_size": {
+                    "type": "string",
+                    "default": null,
+                    "description": "Estimated genome size (e.g. '1g', '500m', or bp as integer). Optional; some tools estimate it automatically.",
+                    "fa_icon": "fas fa-weight"
+                }
+            }
+        },
+        "assembly_options": {
+            "title": "Assembly options",
+            "type": "object",
+            "fa_icon": "fas fa-puzzle-piece",
+            "description": "De novo assembler selection and tuning.",
+            "properties": {
+                "assembler": {
+                    "type": "string",
+                    "default": "hifiasm",
+                    "enum": ["hifiasm", "verkko", "flye"],
+                    "description": "Long-read de novo assembler to use.",
+                    "fa_icon": "fas fa-cogs"
+                },
+                "flye_mode": {
+                    "type": "string",
+                    "default": "--pacbio-hifi",
+                    "enum": [
+                        "--pacbio-hifi",
+                        "--pacbio-raw",
+                        "--pacbio-corr",
+                        "--nano-hq",
+                        "--nano-raw",
+                        "--nano-corr"
+                    ],
+                    "description": "Read-type mode passed to Flye (only used when assembler=flye).",
+                    "fa_icon": "fas fa-sliders-h"
+                }
+            }
+        },
+        "purge_dups_options": {
+            "title": "Purge duplicates options",
+            "type": "object",
+            "fa_icon": "fas fa-cut",
+            "description": "Haplotypic-duplicate purging.",
+            "properties": {
+                "skip_purgedups": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Skip the purge_dups duplicate-purging stage.",
+                    "fa_icon": "fas fa-forward"
+                },
+                "min_contig_length": {
+                    "type": "integer",
+                    "default": 1000,
+                    "description": "Minimum contig length to retain.",
+                    "fa_icon": "fas fa-ruler",
+                    "minimum": 0
+                }
+            }
+        },
+        "scaffolding_options": {
+            "title": "Scaffolding options",
+            "type": "object",
+            "fa_icon": "fas fa-link",
+            "description": "Hi-C scaffolding selection and tuning.",
+            "properties": {
+                "scaffolder": {
+                    "type": "string",
+                    "default": "yahs",
+                    "enum": ["yahs", "salsa"],
+                    "description": "Hi-C scaffolding tool to use.",
+                    "fa_icon": "fas fa-project-diagram"
+                },
+                "skip_scaffolding": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Skip the Hi-C scaffolding stage.",
+                    "fa_icon": "fas fa-forward"
+                },
+                "hic_enzyme": {
+                    "type": "string",
+                    "default": null,
+                    "description": "Hi-C restriction enzyme recognition site(s) (e.g. GATC). Required by SALSA2; used to weight YAHS.",
+                    "fa_icon": "fas fa-scissors"
+                }
+            }
+        },
+        "polishing_options": {
+            "title": "Polishing options",
+            "type": "object",
+            "fa_icon": "fas fa-magic",
+            "description": "Optional long-read consensus polishing.",
+            "properties": {
+                "run_polishing": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Run an optional Racon long-read polishing pass on the final assembly.",
+                    "fa_icon": "fas fa-play"
+                }
+            }
+        },
+        "qc_options": {
+            "title": "QC and benchmark options",
+            "type": "object",
+            "fa_icon": "fas fa-check-double",
+            "description": "Assembly quality assessment, completeness and telomere analysis.",
+            "properties": {
+                "busco_lineage": {
+                    "type": "string",
+                    "default": "auto",
+                    "description": "BUSCO lineage dataset name, or 'auto' for automated lineage selection.",
+                    "fa_icon": "fas fa-sitemap"
+                },
+                "busco_mode": {
+                    "type": "string",
+                    "default": "genome",
+                    "enum": ["genome", "transcriptome", "proteins"],
+                    "description": "BUSCO analysis mode.",
+                    "fa_icon": "fas fa-cog"
+                },
+                "busco_db": {
+                    "type": "string",
+                    "format": "path",
+                    "default": null,
+                    "description": "Path to a pre-downloaded BUSCO lineage database (offline use).",
+                    "fa_icon": "fas fa-database"
+                },
+                "skip_busco": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Skip BUSCO completeness assessment.",
+                    "fa_icon": "fas fa-forward"
+                },
+                "telomere_motif": {
+                    "type": "string",
+                    "default": "AACCCT",
+                    "description": "Telomeric repeat motif searched for by tidk (e.g. AACCCT for many plants/animals).",
+                    "fa_icon": "fas fa-dna"
+                },
+                "tidk_clade": {
+                    "type": "string",
+                    "default": null,
+                    "description": "Optional tidk clade to look up a canonical telomere motif instead of telomere_motif.",
+                    "fa_icon": "fas fa-tree"
+                }
+            }
+        },
+        "contamination_options": {
+            "title": "Contamination screening options",
+            "type": "object",
+            "fa_icon": "fas fa-bug",
+            "description": "Read- and assembly-level contamination removal.",
+            "properties": {
+                "skip_readqc": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Skip the read QC / k-mer profiling subworkflow.",
+                    "fa_icon": "fas fa-forward"
+                },
+                "skip_contamination": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Skip read-level Kraken2 contamination screening.",
+                    "fa_icon": "fas fa-forward"
+                },
+                "kraken2_db": {
+                    "type": "string",
+                    "format": "path",
+                    "default": null,
+                    "description": "Path to a Kraken2 database directory for read-level contamination screening.",
+                    "fa_icon": "fas fa-database"
+                },
+                "contaminant_taxids": {
+                    "type": "string",
+                    "default": "2,2157,10239",
+                    "description": "Comma-separated NCBI taxids to remove from reads (default: Bacteria, Archaea, Viruses).",
+                    "fa_icon": "fas fa-filter"
+                },
+                "run_fcs_gx": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Run NCBI FCS-GX assembly-level contamination screening and cleaning.",
+                    "fa_icon": "fas fa-play"
+                },
+                "fcs_gx_db": {
+                    "type": "string",
+                    "format": "path",
+                    "default": null,
+                    "description": "Path to the local FCS-GX database directory.",
+                    "fa_icon": "fas fa-database"
+                },
+                "fcs_gx_tax_id": {
+                    "type": "integer",
+                    "default": null,
+                    "description": "NCBI taxid of the assembled organism, required by FCS-GX.",
+                    "fa_icon": "fas fa-fingerprint"
+                }
+            }
+        },
+        "max_job_request_options": {
+            "title": "Max job request options",
+            "type": "object",
+            "fa_icon": "fab fa-acquisitions-incorporated",
+            "description": "Set the top limit for requested resources for any single job.",
+            "help_text": "Used to enforce a per-job resource ceiling via the check_max() helper. The actual resource requested per process is the minimum of these limits and the value derived from the process label.",
+            "properties": {
+                "max_cpus": {
+                    "type": "integer",
+                    "default": 16,
+                    "description": "Maximum number of CPUs that can be requested for any single job.",
+                    "fa_icon": "fas fa-microchip",
+                    "minimum": 1
+                },
+                "max_memory": {
+                    "type": "string",
+                    "default": "128.GB",
+                    "description": "Maximum amount of memory that can be requested for any single job.",
+                    "fa_icon": "fas fa-memory",
+                    "pattern": "^\\d+(\\.\\d+)?\\.?\\s*(K|M|G|T)?B$"
+                },
+                "max_time": {
+                    "type": "string",
+                    "default": "240.h",
+                    "description": "Maximum amount of time that can be requested for any single job.",
+                    "fa_icon": "far fa-clock",
+                    "pattern": "^(\\d+\\.?\\s*(s|m|h|d|day)\\s*)+$"
+                }
+            }
+        },
+        "institutional_config_options": {
+            "title": "Institutional config options",
+            "type": "object",
+            "fa_icon": "fas fa-university",
+            "description": "Parameters used to describe centralised config profiles. These should not be edited.",
+            "help_text": "The centralised nf-core configuration profiles use a handful of pipeline parameters to describe themselves.",
+            "properties": {
+                "config_profile_name": {
+                    "type": "string",
+                    "description": "Institutional config name.",
+                    "fa_icon": "fas fa-users-cog",
+                    "hidden": true
+                },
+                "config_profile_description": {
+                    "type": "string",
+                    "description": "Institutional config description.",
+                    "fa_icon": "fas fa-users-cog",
+                    "hidden": true
+                }
+            }
+        },
+        "generic_options": {
+            "title": "Generic options",
+            "type": "object",
+            "fa_icon": "fas fa-file-import",
+            "description": "Less common options for the pipeline, typically set in a config file.",
+            "properties": {
+                "publish_dir_mode": {
+                    "type": "string",
+                    "default": "copy",
+                    "description": "Method used to save pipeline results to output directory.",
+                    "fa_icon": "fas fa-copy",
+                    "enum": ["symlink", "rellink", "link", "copy", "copyNoFollow", "move"],
+                    "hidden": true
+                },
+                "validate_params": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Boolean whether to validate parameters against the schema at runtime.",
+                    "fa_icon": "fas fa-check-square",
+                    "hidden": true
+                },
+                "monochrome_logs": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Do not use coloured log output.",
+                    "fa_icon": "fas fa-palette",
+                    "hidden": true
+                },
+                "help": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Display help text.",
+                    "fa_icon": "fas fa-question-circle",
+                    "hidden": true
+                },
+                "version": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Display version and exit.",
+                    "fa_icon": "fas fa-info",
+                    "hidden": true
+                },
+                "trace_report_suffix": {
+                    "type": "string",
+                    "description": "Suffix to add to the trace report filename. Default is the date and time in the format yyyy-MM-dd_HH-mm-ss.",
+                    "fa_icon": "far fa-clock",
+                    "hidden": true
+                }
+            }
+        }
+    },
+    "allOf": [
+        { "$ref": "#/definitions/input_output_options" },
+        { "$ref": "#/definitions/reference_profiling_options" },
+        { "$ref": "#/definitions/assembly_options" },
+        { "$ref": "#/definitions/purge_dups_options" },
+        { "$ref": "#/definitions/scaffolding_options" },
+        { "$ref": "#/definitions/polishing_options" },
+        { "$ref": "#/definitions/qc_options" },
+        { "$ref": "#/definitions/contamination_options" },
+        { "$ref": "#/definitions/max_job_request_options" },
+        { "$ref": "#/definitions/institutional_config_options" },
+        { "$ref": "#/definitions/generic_options" }
+    ]
+}

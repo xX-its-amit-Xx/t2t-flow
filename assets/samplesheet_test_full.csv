@@ -1,0 +1,2 @@
+sample,hifi,ont,hic_1,hic_2
+test_full_sample,https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/homo_sapiens/pacbio/fastq/test_hifi.fastq.gz,,,
