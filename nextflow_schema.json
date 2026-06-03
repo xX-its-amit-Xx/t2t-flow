@@ -1,10 +1,10 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://raw.githubusercontent.com/t2t-flow/t2t-flow/master/nextflow_schema.json",
     "title": "t2t-flow pipeline parameters",
     "description": "Telomere-to-telomere de novo genome assembly of non-model organisms from long reads",
     "type": "object",
-    "definitions": {
+    "$defs": {
         "input_output_options": {
             "title": "Input/output options",
             "type": "object",
@@ -370,16 +370,16 @@
         }
     },
     "allOf": [
-        { "$ref": "#/definitions/input_output_options" },
-        { "$ref": "#/definitions/reference_profiling_options" },
-        { "$ref": "#/definitions/assembly_options" },
-        { "$ref": "#/definitions/purge_dups_options" },
-        { "$ref": "#/definitions/scaffolding_options" },
-        { "$ref": "#/definitions/polishing_options" },
-        { "$ref": "#/definitions/qc_options" },
-        { "$ref": "#/definitions/contamination_options" },
-        { "$ref": "#/definitions/max_job_request_options" },
-        { "$ref": "#/definitions/institutional_config_options" },
-        { "$ref": "#/definitions/generic_options" }
+        { "$ref": "#/$defs/input_output_options" },
+        { "$ref": "#/$defs/reference_profiling_options" },
+        { "$ref": "#/$defs/assembly_options" },
+        { "$ref": "#/$defs/purge_dups_options" },
+        { "$ref": "#/$defs/scaffolding_options" },
+        { "$ref": "#/$defs/polishing_options" },
+        { "$ref": "#/$defs/qc_options" },
+        { "$ref": "#/$defs/contamination_options" },
+        { "$ref": "#/$defs/max_job_request_options" },
+        { "$ref": "#/$defs/institutional_config_options" },
+        { "$ref": "#/$defs/generic_options" }
     ]
 }
