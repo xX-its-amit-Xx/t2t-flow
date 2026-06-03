@@ -176,6 +176,8 @@ A condensed reference; the full table with types/defaults is in [`parameters.md`
 
 Always pair an executor profile with a container/conda profile, e.g. `-profile slurm,singularity`.
 
+**Reproducibility & validation status.** The `docker` and `singularity` profiles are the recommended, fully reproducible paths and have both been validated end to end on real public HiFi data (identical results, e.g. Merqury QV 48.87). The `conda` profile works (every process declares a pinned `conda` spec) but is inherently less reproducible: each process builds its own environment from a fresh solve, so it needs **substantial disk** (BUSCO's dependency tree alone — augustus/blast/metaeuk/… — is several GB; the full set exceeds ~30 GB) and can occasionally need an extra version pin when bioconda dependencies drift. Prefer a container engine; reach for `conda` only when none is available, give it a large working disk, and consider `conda clean -a` between large runs.
+
 ---
 
 ## 6. Running on HPC
