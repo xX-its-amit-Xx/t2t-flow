@@ -84,12 +84,20 @@ def normalise_row(row) {
         m = [ sample: row ]
     }
     // Coerce empty / placeholder values to null so downstream filters work.
-    def clean = { v -> (v == null || v == '' || v == 'NA' || v == '.') ? null : v }
     return [
         sample: m.sample,
-        hifi  : clean(m.hifi),
-        ont   : clean(m.ont),
-        hic_1  : clean(m.hic_1),
-        hic_2  : clean(m.hic_2),
+        hifi  : clean_value(m.hifi),
+        ont   : clean_value(m.ont),
+        hic_1 : clean_value(m.hic_1),
+        hic_2 : clean_value(m.hic_2),
     ]
+}
+
+//
+// Coerce empty / placeholder samplesheet values to null (top-level function so it
+// resolves under the Nextflow strict DSL, where a local closure cannot be called
+// like a function).
+//
+def clean_value(v) {
+    return (v == null || v == '' || v == 'NA' || v == '.') ? null : v
 }
