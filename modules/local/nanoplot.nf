@@ -2,7 +2,10 @@ process NANOPLOT {
     tag "$meta.id"
     label 'process_low'
 
-    conda "bioconda::nanoplot=1.42.0"
+    // Pin kaleido 0.2.x for the conda path: NanoPlot 1.42 imports the removed
+    // `kaleido.scopes` API, which a fresh conda solve otherwise breaks (the
+    // prebuilt container already pins a compatible kaleido).
+    conda "bioconda::nanoplot=1.42.0 conda-forge::kaleido=0.2.1"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/nanoplot:1.42.0--pyhdfd78af_0' :
         'biocontainers/nanoplot:1.42.0--pyhdfd78af_0' }"
