@@ -4,8 +4,8 @@ process QUAST {
 
     conda "bioconda::quast=5.2.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/quast:5.2.0--py310pl5321hc8f18ef_3' :
-        'biocontainers/quast:5.2.0--py310pl5321hc8f18ef_3' }"
+        'https://depot.galaxyproject.org/singularity/quast:5.2.0--py38pl5321h40d3509_4' :
+        'biocontainers/quast:5.2.0--py38pl5321h40d3509_4' }"
 
     input:
     tuple val(meta), path(assembly)

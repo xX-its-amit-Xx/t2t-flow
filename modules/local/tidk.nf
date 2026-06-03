@@ -4,8 +4,8 @@ process TIDK_EXPLORE {
 
     conda "bioconda::tidk=0.2.63"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/tidk:0.2.63--hdbdd923_0' :
-        'biocontainers/tidk:0.2.63--hdbdd923_0' }"
+        'https://depot.galaxyproject.org/singularity/tidk:0.2.63--h3dc2dae_2' :
+        'biocontainers/tidk:0.2.63--h3dc2dae_2' }"
 
     input:
     tuple val(meta), path(assembly)
@@ -52,8 +52,8 @@ process TIDK_SEARCH {
 
     conda "bioconda::tidk=0.2.63"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/tidk:0.2.63--hdbdd923_0' :
-        'biocontainers/tidk:0.2.63--hdbdd923_0' }"
+        'https://depot.galaxyproject.org/singularity/tidk:0.2.63--h3dc2dae_2' :
+        'biocontainers/tidk:0.2.63--h3dc2dae_2' }"
 
     input:
     tuple val(meta), path(assembly)
@@ -109,8 +109,8 @@ process TIDK_PLOT {
 
     conda "bioconda::tidk=0.2.63"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/tidk:0.2.63--hdbdd923_0' :
-        'biocontainers/tidk:0.2.63--hdbdd923_0' }"
+        'https://depot.galaxyproject.org/singularity/tidk:0.2.63--h3dc2dae_2' :
+        'biocontainers/tidk:0.2.63--h3dc2dae_2' }"
 
     input:
     tuple val(meta), path(search_tsv)

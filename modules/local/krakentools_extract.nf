@@ -4,8 +4,8 @@ process KRAKENTOOLS_EXTRACT {
 
     conda "bioconda::krakentools=1.2"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/krakentools:1.2--pyh5e36f6f_0' :
-        'biocontainers/krakentools:1.2--pyh5e36f6f_0' }"
+        'https://depot.galaxyproject.org/singularity/krakentools:1.2--pyh7e72e81_1' :
+        'biocontainers/krakentools:1.2--pyh7e72e81_1' }"
 
     input:
     tuple val(meta), path(reads), path(kraken_assignment), path(kraken_report)

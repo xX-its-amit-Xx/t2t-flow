@@ -4,8 +4,8 @@ process VERKKO {
 
     conda "bioconda::verkko=2.2"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/verkko:2.2--h45dadfd_0' :
-        'biocontainers/verkko:2.2--h45dadfd_0' }"
+        'https://depot.galaxyproject.org/singularity/verkko:2.2--h45dadce_0' :
+        'biocontainers/verkko:2.2--h45dadce_0' }"
 
     input:
     tuple val(meta), path(hifi), path(ont)

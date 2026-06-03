@@ -4,8 +4,8 @@ process PURGEDUPS_CALCUTS {
 
     conda "bioconda::purge_dups=1.2.6"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/purge_dups:1.2.6--h7132678_2' :
-        'biocontainers/purge_dups:1.2.6--h7132678_2' }"
+        'https://depot.galaxyproject.org/singularity/purge_dups:1.2.6--h577a1d6_3' :
+        'biocontainers/purge_dups:1.2.6--h577a1d6_3' }"
 
     input:
     tuple val(meta), path(stat)

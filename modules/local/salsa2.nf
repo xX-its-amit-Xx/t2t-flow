@@ -4,8 +4,8 @@ process SALSA2 {
 
     conda "bioconda::salsa2=2.3"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/salsa2:2.3--py27hee570cb_4' :
-        'biocontainers/salsa2:2.3--py27hee570cb_4' }"
+        'https://depot.galaxyproject.org/singularity/salsa2:2.3--py27h16ec135_1' :
+        'biocontainers/salsa2:2.3--py27h16ec135_1' }"
 
     input:
     tuple val(meta), path(assembly), path(fai), path(hic_bed)
